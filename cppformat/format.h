@@ -44,6 +44,7 @@ typedef long long          intmax_t;
 #include <stdexcept>
 #include <string>
 #include <map>
+#include "stringconvert.h"
 
 #ifndef FMT_USE_IOSTREAMS
 # define FMT_USE_IOSTREAMS 1
@@ -2812,16 +2813,16 @@ void print_colored(Color c, CStringRef format, ArgList args);
     std::string message = format("The answer is {}", 42);
   \endrst
 */
-inline std::string format(CStringRef format_str, ArgList args) {
-  MemoryWriter w;
-  w.write(format_str, args);
-  return w.str();
+inline std::wstring format(WCStringRef format_str, ArgList args) {
+	WMemoryWriter w;
+	w.write(format_str, args);
+	return w.str();
 }
 
-inline std::wstring format(WCStringRef format_str, ArgList args) {
-  WMemoryWriter w;
-  w.write(format_str, args);
-  return w.str();
+inline std::string format(CStringRef format_str, ArgList args) {
+	std::wstring format_wstr = fmt::StringConverter::StringToWString(format_str.c_str());
+	std::wstring result_wstr = format(WCStringRef(format_wstr), args);
+	return fmt::StringConverter::WStringToString(result_wstr);
 }
 
 /**
